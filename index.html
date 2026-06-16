@@ -1,41 +1,104 @@
-export default {
-  async fetch(request) {
-    return new Response(`
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>devwgms.com.br</title>
-<style>
-body{
-  font-family:Arial,sans-serif;
-  background:#0f172a;
-  color:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  margin:0;
-}
-.container{
-  text-align:center;
-}
-h1{
-  font-size:3rem;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Ibirité - MG</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family: Arial, sans-serif;
+        }
+
+        h1{
+            text-align:center;
+            padding:15px;
+            background:#0f172a;
+            color:white;
+        }
+
+        #map{
+            width:100%;
+            height:90vh;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <h1>🚀 devwgms.com.br</h1>
-  <p>Seu domínio está funcionando!</p>
-</div>
+
+    <h1>Mapa Interativo de Ibirité - MG</h1>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        // Coordenadas centrais de Ibirité
+        const map = L.map('map').setView([-20.025, -44.056], 13);
+
+        // Camada do OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        // Marcador principal
+        L.marker([-20.025, -44.056])
+            .addTo(map)
+            .bindPopup('<b>Ibirité - MG</b><br>Região Metropolitana de Belo Horizonte.')
+            .openPopup();
+
+        // Alguns pontos conhecidos
+        const locais = [
+            {
+                nome: "Centro de Ibirité",
+                lat: -20.021,
+                lon: -44.058
+            },
+            {
+                nome: "IFMG Campus Ibirité",
+                lat: -20.0258,
+                lon: -44.0568
+            },
+            {
+                nome: "Parque Estadual Serra do Rola-Moça",
+                lat: -20.057,
+                lon: -44.010
+            }
+        ];
+
+        locais.forEach(local => {
+            L.marker([local.lat, local.lon])
+                .addTo(map)
+                .bindPopup(local.nome);
+        });
+
+        // Mostrar localização do usuário
+        map.locate({setView:false, maxZoom:16});
+
+        map.on('locationfound', function(e){
+            L.circle(e.latlng,{
+                radius:e.accuracy/2,
+                color:'blue',
+                fillColor:'#3b82f6',
+                fillOpacity:0.3
+            }).addTo(map);
+
+            L.marker(e.latlng)
+                .addTo(map)
+                .bindPopup("Você está aqui!");
+        });
+
+        map.on('locationerror', function(){
+            console.log("Localização não permitida.");
+        });
+    </script>
+
 </body>
 </html>
-`, {
-      headers: {
-        "content-type": "text/html;charset=UTF-8"
-      }
-    });
-  }
-}
